@@ -1,22 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    >
-
-    <Button
-        android:id="@+id/scan_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/start_scan"
-        app:layout_constraintBottom_toTopOf="@+id/testBtn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    tools:context=".MainActivity">
 
     <Button
         android:id="@+id/testBtn"
@@ -40,5 +28,34 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/testBtn" />
+
+    <LinearLayout
+        android:id="@+id/connection_state_view"
+        android:layout_width="177dp"
+        android:layout_height="21dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/testBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.07"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.13999999"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:id="@+id/connection_state_img"
+            android:layout_width="33dp"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/connection_indicator"
+            app:srcCompat="@android:drawable/presence_invisible" />
+
+        <TextView
+            android:id="@+id/connection_state_text"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/connection_state"
+            android:textAlignment="center" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

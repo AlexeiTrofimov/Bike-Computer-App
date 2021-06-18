@@ -1,5 +1,6 @@
 package com.example.bikecomputer
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.*
 import android.bluetooth.le.ScanCallback
@@ -11,7 +12,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -114,27 +119,68 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var isScanning = false
+
+    private var isConnected = false
+        @SuppressLint("SetTextI18n")
         set(value) {
+            val connStatusImg = findViewById<ImageView>(R.id.connection_state_img)
+            val connStatusText = findViewById<TextView>(R.id.connection_state_text)
             field = value
-            runOnUiThread { findViewById<Button>(R.id.scan_button).text = if (value) "Stop Scan" else "Start Scan" }
+            if (value){
+                connStatusImg.setImageResource(android.R.drawable.presence_online)
+                connStatusText.text = "Connected"
+            }
+            else{
+                connStatusImg.setImageResource(android.R.drawable.presence_invisible)
+                connStatusText.text = "Disconnected"
+            }
         }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.popup_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.scan_btn -> {
+                if (isScanning) {
+                    stopBleScan()
+                }
+                else {
+                    if (!isLocationPermissionGranted){
+                        requestLocationPermission()
+                    }
+                    else{
+                        startBleScan()
+
+                        Run.after(2000) {
+                            isConnected = connectionManager.connectionState()
+                        }
+
+                    }
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val item = menu.findItem(R.id.scan_btn)
+        if (isScanning) {
+            item.title = "Stop scan"
+        } else {
+            item.title = "Scan for devices"
+        }
+        return super.onPrepareOptionsMenu(menu)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<Button>(R.id.scan_button).setOnClickListener {
-            if (isScanning) {
-                stopBleScan()
-            } else {
-                if (!isLocationPermissionGranted){
-                    requestLocationPermission()
-                }
-                else{
-                    startBleScan()
-                }
-            }
-        }
         findViewById<Button>(R.id.testBtn).setOnClickListener {
             connectionManager.receiveData()
             findViewById<TextView>(R.id.returnText).text = returned

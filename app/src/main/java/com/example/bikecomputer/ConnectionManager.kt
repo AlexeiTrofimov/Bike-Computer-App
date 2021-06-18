@@ -7,12 +7,17 @@ import android.util.Log
 import java.util.*
 
 private const val CCC_DESCRIPTOR_UUID = "000002902-0000-1000-8000-00805f9b34fb"
+var isConnected = false
 
 class ConnectionManager {
 
     private lateinit var bluetoothGatt: BluetoothGatt
 
     /* Device Found */
+
+    fun connectionState(): Boolean {
+        return isConnected
+    }
 
     val gattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
@@ -22,15 +27,18 @@ class ConnectionManager {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     Log.w("BluetoothGattCallback", "Successfully connected to $deviceAddress")
                     bluetoothGatt = gatt
+                    isConnected = true
                     Handler(Looper.getMainLooper()).post {
                         bluetoothGatt.discoverServices()
                     }
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     Log.w("BluetoothGattCallback", "Successfully disconnected from $deviceAddress")
+                    isConnected = false
                     gatt.close()
                 }
             } else {
                 Log.w("BluetoothGattCallback", "Error $status encountered for $deviceAddress! Disconnecting...")
+                isConnected = false
                 gatt.close()
             }
         }
@@ -158,5 +166,7 @@ class ConnectionManager {
             writeDescriptor(cccDescriptor, BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE)
         } ?: Log.e("ConnectionManager", "${characteristic.uuid} doesn't contain the CCC descriptor!")
     }
+
+
 
 }
