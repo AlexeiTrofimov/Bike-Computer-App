@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<Button>(R.id.testBtn).setOnClickListener {
-            connectionManager.receiveData()
+            connectionManager.enableNotifications()
             findViewById<TextView>(R.id.returnText).text = returned
         }
     }

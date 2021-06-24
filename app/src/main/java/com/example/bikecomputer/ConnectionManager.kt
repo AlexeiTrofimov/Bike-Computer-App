@@ -7,6 +7,10 @@ import android.util.Log
 import java.util.*
 
 private const val CCC_DESCRIPTOR_UUID = "000002902-0000-1000-8000-00805f9b34fb"
+
+private val bikeCompServiceUuid = UUID.fromString("19172c72-f781-4efa-a5ab-5158872be9c8")
+private val hallReadCharUuid = UUID.fromString("9bbff0b4-d472-48b3-8ca3-70de95ee4bd7")
+
 var isConnected = false
 
 class ConnectionManager {
@@ -46,6 +50,7 @@ class ConnectionManager {
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             with(gatt) {
                 Log.w("BluetoothGattCallback", "Discovered ${services.size} services for ${device.address}")
+                bluetoothGatt.getService(bikeCompServiceUuid).getCharacteristic(hallReadCharUuid)
                 printGattTable()
             }
         }
@@ -107,8 +112,6 @@ class ConnectionManager {
     }
 
     fun receiveData() {
-        val bikeCompServiceUuid = UUID.fromString("19172c72-f781-4efa-a5ab-5158872be9c8")
-        val hallReadCharUuid = UUID.fromString("9bbff0b4-d472-48b3-8ca3-70de95ee4bd7")
         val hallReadChar = bluetoothGatt
             .getService(bikeCompServiceUuid)?.getCharacteristic(hallReadCharUuid)
         if (hallReadChar?.isReadable() == true) {
@@ -131,8 +134,12 @@ class ConnectionManager {
         }
     }
 
-    fun enableNotifications(characteristic: BluetoothGattCharacteristic) {
+    fun enableNotifications() {
         val cccdUuid = UUID.fromString(CCC_DESCRIPTOR_UUID)
+
+        val characteristic= bluetoothGatt
+            .getService(bikeCompServiceUuid).getCharacteristic(hallReadCharUuid)
+
         val payload = when {
             characteristic.isIndicatable() -> BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
             characteristic.isNotifiable() -> BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
