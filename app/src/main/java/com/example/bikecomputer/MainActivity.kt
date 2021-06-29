@@ -21,15 +21,18 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
 import java.util.*
 
 private const val DEVICE_ADDRESS = "F0:08:D1:65:9C:0E"
-private var returned: String = ""
 
 class MainActivity : AppCompatActivity() {
 
     /* SETUP */
-    private val connectionManager = ConnectionManager()
+
+    private val speedListener : MutableLiveData<String> =  MutableLiveData<String>()
+
+    private val connectionManager = ConnectionManager(speedListener)
 
     private val bleScanner by lazy {
         bluetoothAdapter.bluetoothLeScanner
@@ -181,9 +184,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        speedListener.value = "0"
+
+        speedListener.observe(this,{
+            findViewById<TextView>(R.id.speedView).text = it
+        })
+
         findViewById<Button>(R.id.testBtn).setOnClickListener {
             connectionManager.enableNotifications()
-            findViewById<TextView>(R.id.returnText).text = returned
         }
     }
 }

@@ -4,6 +4,7 @@ import android.bluetooth.*
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import java.util.*
 
 private const val CCC_DESCRIPTOR_UUID = "000002902-0000-1000-8000-00805f9b34fb"
@@ -13,7 +14,7 @@ private val hallReadCharUuid = UUID.fromString("9bbff0b4-d472-48b3-8ca3-70de95ee
 
 var isConnected = false
 
-class ConnectionManager {
+class ConnectionManager(listener: MutableLiveData<String>) {
 
     private lateinit var bluetoothGatt: BluetoothGatt
 
@@ -21,6 +22,13 @@ class ConnectionManager {
 
     fun connectionState(): Boolean {
         return isConnected
+    }
+
+    fun returnValue(): String {
+        val characteristic= bluetoothGatt
+            .getService(bikeCompServiceUuid).getCharacteristic(hallReadCharUuid)
+
+        return characteristic.value.toHexString()
     }
 
     val gattCallback = object : BluetoothGattCallback() {
@@ -80,6 +88,7 @@ class ConnectionManager {
             characteristic: BluetoothGattCharacteristic
         ) {
             with(characteristic) {
+                listener.postValue(value.toHexString())
                 Log.i("BluetoothGattCallback", "Characteristic $uuid changed | value: ${value.toHexString()}")
             }
         }
