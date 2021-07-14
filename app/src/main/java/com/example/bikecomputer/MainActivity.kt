@@ -15,6 +15,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -22,7 +23,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
+import com.github.anastr.speedviewlib.TubeSpeedometer
 import java.util.*
+
 
 private const val DEVICE_ADDRESS = "F0:08:D1:65:9C:0E"
 
@@ -30,9 +33,10 @@ class MainActivity : AppCompatActivity() {
 
     /* SETUP */
 
-    private val speedListener : MutableLiveData<String> =  MutableLiveData<String>()
+    private val speedListener : MutableLiveData<Float> =  MutableLiveData<Float>()
+    private val connectionListener : MutableLiveData<Boolean> =  MutableLiveData<Boolean>()
 
-    private val connectionManager = ConnectionManager(speedListener)
+    private val connectionManager = ConnectionManager(speedListener, connectionListener)
 
     private val bleScanner by lazy {
         bluetoothAdapter.bluetoothLeScanner
@@ -157,11 +161,6 @@ class MainActivity : AppCompatActivity() {
                     }
                     else{
                         startBleScan()
-
-                        Run.after(2000) {
-                            isConnected = connectionManager.connectionState()
-                        }
-
                     }
                 }
                 true
@@ -184,11 +183,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        speedListener.value = "0"
+        val speedometer = findViewById<TubeSpeedometer>(R.id.speedometer)
+
+        speedListener.value = 0F
 
         speedListener.observe(this,{
-            findViewById<TextView>(R.id.speedView).text = it
+            speedometer.speedTo(it,4000)
         })
+
+        connectionListener.observe(this,{ isConnected = it})
+
 
         findViewById<Button>(R.id.testBtn).setOnClickListener {
             connectionManager.enableNotifications()

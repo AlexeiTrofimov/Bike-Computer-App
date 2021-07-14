@@ -10,24 +10,19 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.text.DecimalFormat
 import java.util.*
-import kotlin.math.round
 
 private const val CCC_DESCRIPTOR_UUID = "000002902-0000-1000-8000-00805f9b34fb"
 
 private val bikeCompServiceUuid = UUID.fromString("19172c72-f781-4efa-a5ab-5158872be9c8")
 private val hallReadCharUuid = UUID.fromString("9bbff0b4-d472-48b3-8ca3-70de95ee4bd7")
 
-var isConnected = false
-
-class ConnectionManager(listener: MutableLiveData<String>) {
+class ConnectionManager(
+    speedListener: MutableLiveData<Float>,
+    connectionListener: MutableLiveData<Boolean>) {
 
     private lateinit var bluetoothGatt: BluetoothGatt
 
     /* Device Found */
-
-    fun connectionState(): Boolean {
-        return isConnected
-    }
 
     fun returnValue(): String {
         val characteristic= bluetoothGatt
@@ -44,18 +39,18 @@ class ConnectionManager(listener: MutableLiveData<String>) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     Log.w("BluetoothGattCallback", "Successfully connected to $deviceAddress")
                     bluetoothGatt = gatt
-                    isConnected = true
+                    connectionListener.postValue(true)
                     Handler(Looper.getMainLooper()).post {
                         bluetoothGatt.discoverServices()
                     }
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     Log.w("BluetoothGattCallback", "Successfully disconnected from $deviceAddress")
-                    isConnected = false
+                    connectionListener.postValue(false)
                     gatt.close()
                 }
             } else {
                 Log.w("BluetoothGattCallback", "Error $status encountered for $deviceAddress! Disconnecting...")
-                isConnected = false
+                connectionListener.postValue(false)
                 gatt.close()
             }
         }
@@ -93,7 +88,7 @@ class ConnectionManager(listener: MutableLiveData<String>) {
             characteristic: BluetoothGattCharacteristic
         ) {
             with(characteristic) {
-                listener.postValue("${value.toRoundedFloatString()} m/s")
+                speedListener.postValue(value.toFloat())
 
                 Log.i("BluetoothGattCallback", "Characteristic $uuid changed | value: ${value.toHexString()}")
             }
@@ -104,11 +99,8 @@ class ConnectionManager(listener: MutableLiveData<String>) {
     fun ByteArray.toHexString(): String =
         joinToString(separator = " ", prefix = "0x") { String.format("%02X", it) }
 
-    fun ByteArray.toRoundedFloatString(): String{
-        val newData = ByteBuffer.wrap(this).order(ByteOrder.LITTLE_ENDIAN).float
-        val df = DecimalFormat("#.##")
-        df.roundingMode = RoundingMode.CEILING
-        return df.format(newData)
+    fun ByteArray.toFloat(): Float{
+        return ByteBuffer.wrap(this).order(ByteOrder.LITTLE_ENDIAN).float
     }
 
     private fun BluetoothGatt.printGattTable() {
