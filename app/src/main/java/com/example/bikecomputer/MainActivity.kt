@@ -15,7 +15,6 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -126,22 +125,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var isScanning = false
+    private var isTracking = false
 
     private var isConnected = false
-        @SuppressLint("SetTextI18n")
-        set(value) {
-            val connStatusImg = findViewById<ImageView>(R.id.connection_state_img)
-            val connStatusText = findViewById<TextView>(R.id.connection_state_text)
-            field = value
-            if (value){
-                connStatusImg.setImageResource(android.R.drawable.presence_online)
-                connStatusText.text = "Connected"
-            }
-            else{
-                connStatusImg.setImageResource(android.R.drawable.presence_invisible)
-                connStatusText.text = "Disconnected"
-            }
+    @SuppressLint("SetTextI18n")
+    set(value) {
+        val connStatusImg = findViewById<ImageView>(R.id.connection_state_img)
+        val connStatusText = findViewById<TextView>(R.id.connection_state_text)
+        field = value
+        if (value){
+            connStatusImg.setImageResource(android.R.drawable.presence_online)
+            connStatusText.text = "Connected"
         }
+        else{
+            connStatusImg.setImageResource(android.R.drawable.presence_invisible)
+            connStatusText.text = "Disconnected"
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
@@ -179,6 +179,7 @@ class MainActivity : AppCompatActivity() {
         return super.onPrepareOptionsMenu(menu)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -191,11 +192,23 @@ class MainActivity : AppCompatActivity() {
             speedometer.speedTo(it,4000)
         })
 
-        connectionListener.observe(this,{ isConnected = it})
+        connectionListener.observe(this,{ isConnected = it })
 
+        val startTrackingBtn = findViewById<Button>(R.id.start_ride_btn)
 
-        findViewById<Button>(R.id.testBtn).setOnClickListener {
-            connectionManager.enableNotifications()
+        startTrackingBtn.setOnClickListener {
+            if (isTracking){
+                connectionManager.disableNotifications()
+                startTrackingBtn.text = "Start Tracking"
+                speedometer.speedTo(0F,4000)
+                isTracking = false
+            }
+            else{
+                connectionManager.enableNotifications()
+                startTrackingBtn.text = "Stop Tracking"
+                isTracking = true
+            }
+
         }
     }
 }

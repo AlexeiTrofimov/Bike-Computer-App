@@ -14,7 +14,7 @@ import java.util.*
 private const val CCC_DESCRIPTOR_UUID = "000002902-0000-1000-8000-00805f9b34fb"
 
 private val bikeCompServiceUuid = UUID.fromString("19172c72-f781-4efa-a5ab-5158872be9c8")
-private val hallReadCharUuid = UUID.fromString("9bbff0b4-d472-48b3-8ca3-70de95ee4bd7")
+private val sensorReadCharUuid = UUID.fromString("9bbff0b4-d472-48b3-8ca3-70de95ee4bd7")
 
 class ConnectionManager(
     speedListener: MutableLiveData<Float>,
@@ -26,7 +26,7 @@ class ConnectionManager(
 
     fun returnValue(): String {
         val characteristic= bluetoothGatt
-            .getService(bikeCompServiceUuid).getCharacteristic(hallReadCharUuid)
+            .getService(bikeCompServiceUuid).getCharacteristic(sensorReadCharUuid)
 
         return characteristic.value.toHexString()
     }
@@ -58,7 +58,7 @@ class ConnectionManager(
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             with(gatt) {
                 Log.w("BluetoothGattCallback", "Discovered ${services.size} services for ${device.address}")
-                bluetoothGatt.getService(bikeCompServiceUuid).getCharacteristic(hallReadCharUuid)
+                bluetoothGatt.getService(bikeCompServiceUuid).getCharacteristic(sensorReadCharUuid)
                 printGattTable()
             }
         }
@@ -126,10 +126,10 @@ class ConnectionManager(
     }
 
     fun receiveData() {
-        val hallReadChar = bluetoothGatt
-            .getService(bikeCompServiceUuid)?.getCharacteristic(hallReadCharUuid)
-        if (hallReadChar?.isReadable() == true) {
-            bluetoothGatt.readCharacteristic(hallReadChar)
+        val sensorReadChar = bluetoothGatt
+            .getService(bikeCompServiceUuid)?.getCharacteristic(sensorReadCharUuid)
+        if (sensorReadChar?.isReadable() == true) {
+            bluetoothGatt.readCharacteristic(sensorReadChar)
         }
     }
 
@@ -152,7 +152,7 @@ class ConnectionManager(
         val cccdUuid = UUID.fromString(CCC_DESCRIPTOR_UUID)
 
         val characteristic= bluetoothGatt
-            .getService(bikeCompServiceUuid).getCharacteristic(hallReadCharUuid)
+            .getService(bikeCompServiceUuid).getCharacteristic(sensorReadCharUuid)
 
         val payload = when {
             characteristic.isIndicatable() -> BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
@@ -172,7 +172,11 @@ class ConnectionManager(
         } ?: Log.e("ConnectionManager", "${characteristic.uuid} doesn't contain the CCC descriptor!")
     }
 
-    fun disableNotifications(characteristic: BluetoothGattCharacteristic) {
+    fun disableNotifications() {
+
+        val characteristic= bluetoothGatt
+            .getService(bikeCompServiceUuid).getCharacteristic(sensorReadCharUuid)
+
         if (!characteristic.isNotifiable() && !characteristic.isIndicatable()) {
             Log.e("ConnectionManager", "${characteristic.uuid} doesn't support indications/notifications")
             return
