@@ -4,4 +4,11 @@
     <string name="start_track">Start Tracking</string>
     <string name="connection_state">Disconnected</string>
     <string name="connection_indicator">connection indicator</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Preference Titles -->
+    <string name="specs_header">Bike specifications</string>
+
+    <!-- Bike specs -->
+    <string name="circumference_value">Circumference of your wheel (mm)</string>
 </resources>

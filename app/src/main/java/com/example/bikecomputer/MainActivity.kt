@@ -165,6 +165,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 true
             }
+
+            R.id.settings_btn -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
+                true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
