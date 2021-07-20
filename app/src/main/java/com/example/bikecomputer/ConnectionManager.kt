@@ -15,7 +15,7 @@ private const val CCC_DESCRIPTOR_UUID = "000002902-0000-1000-8000-00805f9b34fb"
 
 private val bikeCompServiceUuid = UUID.fromString("19172c72-f781-4efa-a5ab-5158872be9c8")
 private val sensorReadCharUuid = UUID.fromString("9bbff0b4-d472-48b3-8ca3-70de95ee4bd7")
-
+private val specsWriteCharUuid = UUID.fromString("9bbff0b4-d472-48b3-8ca3-70de95ee4bd8")
 class ConnectionManager(
     speedListener: MutableLiveData<Float>,
     connectionListener: MutableLiveData<Boolean>) {
@@ -83,6 +83,29 @@ class ConnectionManager(
             }
         }
 
+        override fun onCharacteristicWrite(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            status: Int
+        ) {
+            with(characteristic) {
+                when (status) {
+                    BluetoothGatt.GATT_SUCCESS -> {
+                        Log.i("BluetoothGattCallback", "Wrote to characteristic $uuid | value: ${value.toHexString()}")
+                    }
+                    BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH -> {
+                        Log.e("BluetoothGattCallback", "Write exceeded connection ATT MTU!")
+                    }
+                    BluetoothGatt.GATT_WRITE_NOT_PERMITTED -> {
+                        Log.e("BluetoothGattCallback", "Write not permitted for $uuid!")
+                    }
+                    else -> {
+                        Log.e("BluetoothGattCallback", "Characteristic write failed for $uuid, error: $status")
+                    }
+                }
+            }
+        }
+
         override fun onCharacteristicChanged(
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic
@@ -94,13 +117,6 @@ class ConnectionManager(
             }
         }
 
-    }
-
-    fun ByteArray.toHexString(): String =
-        joinToString(separator = " ", prefix = "0x") { String.format("%02X", it) }
-
-    fun ByteArray.toFloat(): Float{
-        return ByteBuffer.wrap(this).order(ByteOrder.LITTLE_ENDIAN).float
     }
 
     private fun BluetoothGatt.printGattTable() {
@@ -121,6 +137,12 @@ class ConnectionManager(
     private fun BluetoothGattCharacteristic.isReadable(): Boolean =
         containsProperty(BluetoothGattCharacteristic.PROPERTY_READ)
 
+    private fun BluetoothGattCharacteristic.isWritable(): Boolean =
+        containsProperty(BluetoothGattCharacteristic.PROPERTY_WRITE)
+
+    private fun BluetoothGattCharacteristic.isWritableWithoutResponse(): Boolean =
+        containsProperty(BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)
+
     private fun BluetoothGattCharacteristic.containsProperty(property: Int): Boolean {
         return properties and property != 0
     }
@@ -132,6 +154,26 @@ class ConnectionManager(
             bluetoothGatt.readCharacteristic(sensorReadChar)
         }
     }
+
+    fun writeCharacteristic(payload: ByteArray) {
+        val characteristic= bluetoothGatt
+            .getService(bikeCompServiceUuid).getCharacteristic(specsWriteCharUuid)
+
+        val writeType = when {
+            characteristic.isWritable() -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            characteristic.isWritableWithoutResponse() -> {
+                BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+            }
+            else -> error("Characteristic ${characteristic.uuid} cannot be written to")
+        }
+
+        bluetoothGatt?.let { gatt ->
+            characteristic.writeType = writeType
+            characteristic.value = payload
+            gatt.writeCharacteristic(characteristic)
+        } ?: error("Not connected to a BLE device!")
+    }
+
 
     /* Notification and indication */
 

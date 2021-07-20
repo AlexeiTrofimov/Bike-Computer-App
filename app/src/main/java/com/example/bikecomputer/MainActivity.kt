@@ -22,7 +22,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
+import androidx.preference.PreferenceManager
 import com.github.anastr.speedviewlib.TubeSpeedometer
+import java.lang.Integer.parseInt
 import java.util.*
 
 
@@ -192,6 +194,12 @@ class MainActivity : AppCompatActivity() {
 
         val speedometer = findViewById<TubeSpeedometer>(R.id.speedometer)
 
+        val shared = PreferenceManager.getDefaultSharedPreferences(this)
+        val string = shared.getString("circumference", "0")!!
+        val circumference = parseInt(string).toFloat()*0.001F
+
+        val circBitArray = (circumference).toByteArray()
+
         speedListener.value = 0F
 
         speedListener.observe(this,{
@@ -203,18 +211,21 @@ class MainActivity : AppCompatActivity() {
         val startTrackingBtn = findViewById<Button>(R.id.start_ride_btn)
 
         startTrackingBtn.setOnClickListener {
-            if (isTracking){
-                connectionManager.disableNotifications()
-                startTrackingBtn.text = "Start Tracking"
-                speedometer.speedTo(0F,4000)
-                isTracking = false
+            if (isConnected) {
+                if (isTracking) {
+                    connectionManager.disableNotifications()
+                    startTrackingBtn.text = "Start Tracking"
+                    speedometer.speedTo(0F, 4000)
+                    isTracking = false
+                } else {
+                    connectionManager.writeCharacteristic(circBitArray)
+                    Run.after(500) {
+                        connectionManager.enableNotifications()
+                        startTrackingBtn.text = "Stop Tracking"
+                        isTracking = true
+                    }
+                }
             }
-            else{
-                connectionManager.enableNotifications()
-                startTrackingBtn.text = "Stop Tracking"
-                isTracking = true
-            }
-
         }
     }
 }
