@@ -206,9 +206,16 @@ class MainActivity : AppCompatActivity() {
             speedometer.speedTo(it,4000)
         })
 
-        connectionListener.observe(this,{ isConnected = it })
-
         val startTrackingBtn = findViewById<Button>(R.id.start_ride_btn)
+
+        connectionListener.observe(this,{
+            isConnected = it
+            if (!isConnected){
+                startTrackingBtn.text = "Start Tracking"
+                speedometer.speedTo(0F, 4000)
+                isTracking = false
+            }
+        })
 
         startTrackingBtn.setOnClickListener {
             if (isConnected) {
