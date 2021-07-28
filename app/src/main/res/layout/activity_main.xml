@@ -67,4 +67,16 @@
         app:sv_unitUnderSpeedText="true"
         app:sv_withTremble="false" />
 
+    <Chronometer
+        android:id="@+id/cmTimer"
+        android:layout_width="282dp"
+        android:layout_height="86dp"
+        android:textAlignment="center"
+        android:textSize="48sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/start_ride_btn" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

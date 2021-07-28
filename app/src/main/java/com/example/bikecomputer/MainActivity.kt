@@ -11,11 +11,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.Button
+import android.widget.Chronometer
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -128,6 +130,30 @@ class MainActivity : AppCompatActivity() {
 
     private var isScanning = false
     private var isTracking = false
+    set(value){
+        val chronometer = findViewById<Chronometer>(R.id.cmTimer)
+        chronometer.base = SystemClock.elapsedRealtime()
+        val speedometer = findViewById<TubeSpeedometer>(R.id.speedometer)
+        val startTrackingBtn = findViewById<Button>(R.id.start_ride_btn)
+        val context = applicationContext
+        val circBitArray = getCircumference(context)
+        field = value
+        if (value) {
+
+            chronometer.start()
+            connectionManager.writeCharacteristic(circBitArray)
+            Run.after(500) {
+                connectionManager.enableNotifications()
+                startTrackingBtn.text = "Stop Tracking"
+            }
+        }
+        else{
+            chronometer.stop()
+            connectionManager.disableNotifications()
+            startTrackingBtn.text = "Start Tracking"
+            speedometer.speedTo(0F, 4000)
+        }
+    }
 
     private var isConnected = false
     @SuppressLint("SetTextI18n")
@@ -172,7 +198,6 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true
             }
-
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -192,46 +217,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val speedometer = findViewById<TubeSpeedometer>(R.id.speedometer)
-
-        val shared = PreferenceManager.getDefaultSharedPreferences(this)
-        val string = shared.getString("circumference", "0")!!
-        val circumference = parseInt(string).toFloat()*0.001F
-
-        val circBitArray = (circumference).toByteArray()
-
         speedListener.value = 0F
 
         speedListener.observe(this,{
-            speedometer.speedTo(it,4000)
+            findViewById<TubeSpeedometer>(R.id.speedometer).speedTo(it,4000)
         })
-
-        val startTrackingBtn = findViewById<Button>(R.id.start_ride_btn)
 
         connectionListener.observe(this,{
             isConnected = it
             if (!isConnected){
-                startTrackingBtn.text = "Start Tracking"
-                speedometer.speedTo(0F, 4000)
                 isTracking = false
             }
         })
 
-        startTrackingBtn.setOnClickListener {
+        findViewById<Button>(R.id.start_ride_btn).setOnClickListener {
             if (isConnected) {
-                if (isTracking) {
-                    connectionManager.disableNotifications()
-                    startTrackingBtn.text = "Start Tracking"
-                    speedometer.speedTo(0F, 4000)
-                    isTracking = false
-                } else {
-                    connectionManager.writeCharacteristic(circBitArray)
-                    Run.after(500) {
-                        connectionManager.enableNotifications()
-                        startTrackingBtn.text = "Stop Tracking"
-                        isTracking = true
-                    }
-                }
+                isTracking = !isTracking
             }
         }
     }
