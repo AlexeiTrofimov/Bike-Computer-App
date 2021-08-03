@@ -24,9 +24,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
 import com.github.anastr.speedviewlib.TubeSpeedometer
-import java.lang.Integer.parseInt
 import java.util.*
 
 
@@ -152,6 +150,17 @@ class MainActivity : AppCompatActivity() {
             connectionManager.disableNotifications()
             startTrackingBtn.text = "Start Tracking"
             speedometer.speedTo(0F, 4000)
+
+            val trip = TripModel(-1, 0, "24.2.1999", "2:30")
+            val dataBase = TripDataBase(context)
+
+            val success = dataBase.addTrip(trip)
+            if (success){
+                Log.i("Database", "Trip Successfully added!")
+            }
+            else{
+                Log.i("Database", "Error occurred while adding to database.")
+            }
         }
     }
 
