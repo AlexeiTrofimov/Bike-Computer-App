@@ -2,7 +2,9 @@ package com.example.bikecomputer
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
 
 class TripDataBase(context: Context?): SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -18,7 +20,7 @@ class TripDataBase(context: Context?): SQLiteOpenHelper(context, DATABASE_NAME, 
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createTableStatement =
-            "CREATE TABLE $TRIP_TABLE ($COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT, $COLUMN_DISTANCE INT, $COLUMN_DATE TEXT, $COLUMN_TIME TEXT)"
+            "CREATE TABLE $TRIP_TABLE ($COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT, $COLUMN_DISTANCE TEXT, $COLUMN_DATE TEXT, $COLUMN_TIME TEXT)"
 
         db?.execSQL(createTableStatement)
     }
@@ -39,6 +41,39 @@ class TripDataBase(context: Context?): SQLiteOpenHelper(context, DATABASE_NAME, 
         db.close()
 
         return success.compareTo(-1) != 0
+    }
+
+    fun getTrips(): List<TripModel> {
+        val returnList:ArrayList<TripModel> = ArrayList()
+
+        val selectQuery = "SELECT  * FROM $TRIP_TABLE"
+        val db = this.readableDatabase
+        val cursor: Cursor?
+
+
+        try{
+            cursor = db.rawQuery(selectQuery, null)
+        }catch (e: SQLiteException) {
+            db.execSQL(selectQuery)
+            return ArrayList()
+        }
+
+        if (cursor.moveToFirst()){
+            do {
+                val tripID = cursor.getInt(0)
+                val tripDistance = cursor.getString(1)
+                val tripDate = cursor.getString(2)
+                val tripTime = cursor.getString(3)
+
+                val newTrip = TripModel(tripID, tripDistance, tripDate, tripTime)
+                returnList.add(newTrip)
+            } while(cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+
+        return returnList
     }
 
 }

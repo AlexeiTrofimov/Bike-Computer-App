@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity() {
             startTrackingBtn.text = "Start Tracking"
             speedometer.speedTo(0F, 4000)
 
-            val trip = TripModel(-1, 0, "24.2.1999", "2:30")
+            val trip = TripModel(-1, "0", "24.2.1999", "2:30")
             val dataBase = TripDataBase(context)
 
             val success = dataBase.addTrip(trip)
@@ -207,6 +207,12 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true
             }
+
+            R.id.trips_btn -> {
+                startActivity(Intent(this, TripsActivity::class.java))
+                true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }

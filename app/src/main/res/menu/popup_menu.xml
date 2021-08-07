@@ -4,6 +4,9 @@
         android:id="@+id/scan_btn"
         android:title="Scan for devices"></item>
     <item
+        android:id="@+id/trips_btn"
+        android:title="Trips"></item>
+    <item
         android:id="@+id/settings_btn"
         android:title="Settings"></item>
 </menu>

@@ -1,6 +1,6 @@
 package com.example.bikecomputer
 
-class TripModel(private var id: Int, private var distance: Int, private var date: String,
+class TripModel(private var id: Int, private var distance: String, private var date: String,
                 private var time: String
 )  {
 
@@ -12,11 +12,11 @@ class TripModel(private var id: Int, private var distance: Int, private var date
         this.id = id
     }
 
-    fun getDistance(): Int{
+    fun getDistance(): String{
         return distance
     }
 
-    fun setDistance(distance: Int){
+    fun setDistance(distance: String){
         this.distance = distance
     }
 
