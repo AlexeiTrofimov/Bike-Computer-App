@@ -43,7 +43,7 @@ class TripDataBase(context: Context?): SQLiteOpenHelper(context, DATABASE_NAME, 
         return success.compareTo(-1) != 0
     }
 
-    fun getTrips(): List<TripModel> {
+    fun getTrips(): MutableList<TripModel> {
         val returnList:ArrayList<TripModel> = ArrayList()
 
         val selectQuery = "SELECT  * FROM $TRIP_TABLE"
@@ -74,6 +74,18 @@ class TripDataBase(context: Context?): SQLiteOpenHelper(context, DATABASE_NAME, 
         db.close()
 
         return returnList
+    }
+
+    fun deleteTrip(tripModel: TripModel): Boolean {
+        val db = this.writableDatabase
+        val queryString = "DElETE FROM $TRIP_TABLE WHERE $COLUMN_ID = ${tripModel.getId()}"
+
+        val cursor = db.rawQuery(queryString, null)
+
+        val notEmpty = cursor.moveToFirst()
+        cursor.close()
+        return notEmpty
+
     }
 
 }

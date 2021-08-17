@@ -14,4 +14,5 @@
     <string name="placeholder_time">23:30</string>
     <string name="placeholder_date">24.2.1999</string>
     <string name="placeholder_distance">45 km</string>
+    <string name="deleteBtnDesc">remove trip</string>
 </resources>
