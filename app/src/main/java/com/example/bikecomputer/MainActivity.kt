@@ -130,14 +130,13 @@ class MainActivity : AppCompatActivity() {
     private var isTracking = false
     set(value){
         val chronometer = findViewById<Chronometer>(R.id.cmTimer)
-        chronometer.base = SystemClock.elapsedRealtime()
         val speedometer = findViewById<TubeSpeedometer>(R.id.speedometer)
         val startTrackingBtn = findViewById<Button>(R.id.start_ride_btn)
         val context = applicationContext
         val circBitArray = getCircumference(context)
         field = value
         if (value) {
-
+            chronometer.base = SystemClock.elapsedRealtime()
             chronometer.start()
             connectionManager.writeCharacteristic(circBitArray)
             Run.after(500) {
@@ -146,12 +145,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
         else{
+            val time = elapsedTime(chronometer.base)
             chronometer.stop()
+            chronometer.base = SystemClock.elapsedRealtime()
             connectionManager.disableNotifications()
             startTrackingBtn.text = "Start Tracking"
             speedometer.speedTo(0F, 4000)
-
-            val trip = TripModel(-1, "0", "24.2.1999", "2:30")
+            val trip = TripModel(-1, "0", getCurrentDate(), time)
             val dataBase = TripDataBase(context)
 
             val success = dataBase.addTrip(trip)

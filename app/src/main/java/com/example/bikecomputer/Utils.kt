@@ -3,9 +3,12 @@ package com.example.bikecomputer
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import androidx.preference.PreferenceManager
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class Run {
     companion object {
@@ -35,4 +38,23 @@ fun getCircumference(context: Context): ByteArray{
     }
 
     return (circumference).toByteArray()
+}
+
+fun getCurrentDate():String{
+    val date = LocalDate.now()
+    return date.format(DateTimeFormatter.ofPattern("d/M/y"))
+
+}
+
+fun elapsedTime(chronometerBase: Long): String{
+    val elapsedMillis = SystemClock.elapsedRealtime() - chronometerBase
+    val seconds = ((elapsedMillis / 1000).toInt() % 60)
+    val minutes = (elapsedMillis / (1000 * 60) % 60)
+    val hours = (elapsedMillis / (1000 * 60 * 60) % 24)
+    return if(hours != 0L){
+        "$hours:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
+    }
+    else{
+        "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
+    }
 }

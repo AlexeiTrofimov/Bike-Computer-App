@@ -33,14 +33,14 @@
 
         <ImageView
             android:id="@+id/clock_image"
-            android:layout_width="15dp"
+            android:layout_width="9dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:srcCompat="@android:drawable/ic_menu_recent_history" />
 
         <TextView
             android:id="@+id/trip_time_view"
-            android:layout_width="wrap_content"
+            android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/placeholder_time"
