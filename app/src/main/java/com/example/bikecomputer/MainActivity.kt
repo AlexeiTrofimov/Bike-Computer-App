@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity() {
         bleScanner.stopScan(scanCallback)
         isScanning = false
     }
-
+    private var chronometerRunning = false
     private var isScanning = false
     private var isTracking = false
     set(value){
@@ -136,30 +136,43 @@ class MainActivity : AppCompatActivity() {
         val circBitArray = getCircumference(context)
         field = value
         if (value) {
-            chronometer.base = SystemClock.elapsedRealtime()
-            chronometer.start()
-            connectionManager.writeCharacteristic(circBitArray)
+            try{
+                connectionManager.writeCharacteristic(circBitArray)
+            }
+            catch (e: NullPointerException){
+                Run.after(500) {
+                    connectionManager.writeCharacteristic(circBitArray)
+                }
+            }
+
             Run.after(500) {
                 connectionManager.enableNotifications()
                 startTrackingBtn.text = "Stop Tracking"
             }
+
+            chronometer.base = SystemClock.elapsedRealtime()
+            chronometer.start()
+            chronometerRunning = true
         }
         else{
-            val time = elapsedTime(chronometer.base)
-            chronometer.stop()
-            chronometer.base = SystemClock.elapsedRealtime()
-            connectionManager.disableNotifications()
-            startTrackingBtn.text = "Start Tracking"
-            speedometer.speedTo(0F, 4000)
-            val trip = TripModel(-1, "0", getCurrentDate(), time)
-            val dataBase = TripDataBase(context)
+            if ( chronometerRunning) {
 
-            val success = dataBase.addTrip(trip)
-            if (success){
-                Log.i("Database", "Trip Successfully added!")
-            }
-            else{
-                Log.i("Database", "Error occurred while adding to database.")
+                val time = elapsedTime(chronometer.base)
+                chronometer.stop()
+                chronometer.base = SystemClock.elapsedRealtime()
+                chronometerRunning = false
+                connectionManager.disableNotifications()
+                startTrackingBtn.text = "Start Tracking"
+                speedometer.speedTo(0F, 4000)
+                val trip = TripModel(-1, "0", getCurrentDate(), time)
+                val dataBase = TripDataBase(context)
+
+                val success = dataBase.addTrip(trip)
+                if (success) {
+                    Log.i("Database", "Trip Successfully added!")
+                } else {
+                    Log.i("Database", "Error occurred while adding to database.")
+                }
             }
         }
     }
@@ -219,6 +232,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val item = menu.findItem(R.id.scan_btn)
+        item.isVisible = !isConnected
         if (isScanning) {
             item.title = "Stop scan"
         } else {
