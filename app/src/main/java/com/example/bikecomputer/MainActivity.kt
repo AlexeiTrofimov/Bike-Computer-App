@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     private val connectionListener : MutableLiveData<Boolean> =  MutableLiveData<Boolean>()
 
     private val connectionManager = ConnectionManager(speedListener, connectionListener)
+    private val tripComputer = TripComputer()
 
     private val bleScanner by lazy {
         bluetoothAdapter.bluetoothLeScanner
@@ -133,15 +134,15 @@ class MainActivity : AppCompatActivity() {
         val speedometer = findViewById<TubeSpeedometer>(R.id.speedometer)
         val startTrackingBtn = findViewById<Button>(R.id.start_ride_btn)
         val context = applicationContext
-        val circBitArray = getCircumference(context)
+        val diamBitArray = getDiameter(context)
         field = value
         if (value) {
             try{
-                connectionManager.writeCharacteristic(circBitArray)
+                connectionManager.writeCharacteristic(diamBitArray)
             }
             catch (e: NullPointerException){
                 Run.after(500) {
-                    connectionManager.writeCharacteristic(circBitArray)
+                    connectionManager.writeCharacteristic(diamBitArray)
                 }
             }
 
@@ -163,9 +164,15 @@ class MainActivity : AppCompatActivity() {
                 chronometerRunning = false
                 connectionManager.disableNotifications()
                 startTrackingBtn.text = "Start Tracking"
+
                 speedometer.speedTo(0F, 4000)
-                val trip = TripModel(-1, "0", getCurrentDate(), time)
+                val distance = tripComputer.getDistance(context)
+
+                val trip = TripModel(-1, "%.2f".format(distance), getCurrentDate(), time)
                 val dataBase = TripDataBase(context)
+
+                findViewById<TextView>(R.id.average_speed_view).text = "0.00 km/h"
+                findViewById<TextView>(R.id.distance_view).text = "0.00 km"
 
                 val success = dataBase.addTrip(trip)
                 if (success) {
@@ -248,8 +255,17 @@ class MainActivity : AppCompatActivity() {
 
         speedListener.value = 0F
 
+        val avgSpdView = findViewById<TextView>(R.id.average_speed_view)
+        val distanceView = findViewById<TextView>(R.id.distance_view)
+
         speedListener.observe(this,{
             findViewById<TubeSpeedometer>(R.id.speedometer).speedTo(it,4000)
+            val avgSpdString = "%.2f km/h".format(tripComputer.getAverageSpeed())
+            val distanceString = "%.2f km".format(tripComputer.getDistance(applicationContext))
+            avgSpdView.text = avgSpdString
+            distanceView.text = distanceString
+            tripComputer.addSpeed(it)
+            tripComputer.addRevolution()
         })
 
         connectionListener.observe(this,{

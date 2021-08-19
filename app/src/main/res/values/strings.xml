@@ -13,6 +13,7 @@
     <string name="circumference_value">Circumference of your wheel (mm)</string>
     <string name="placeholder_time">22:45</string>
     <string name="placeholder_date">24/2/1999</string>
-    <string name="placeholder_distance">45 km</string>
+    <string name="placeholder_distance">999.00 km</string>
     <string name="deleteBtnDesc">remove trip</string>
+    <string name="placeholder_average_speed">22.5 km/h</string>
 </resources>

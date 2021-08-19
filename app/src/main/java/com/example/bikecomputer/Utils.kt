@@ -29,15 +29,15 @@ fun Float.toByteArray(): ByteArray =
 fun ByteArray.toHexString(): String =
     joinToString(separator = " ", prefix = "0x") { String.format("%02X", it) }
 
-fun getCircumference(context: Context): ByteArray{
+fun getDiameter(context: Context): ByteArray{
     val shared = PreferenceManager.getDefaultSharedPreferences(context)
-    val circString = shared.getString("circumference", "0")
-    var circumference = 0F
-    if (circString != null){
-        circumference = Integer.parseInt(circString).toFloat()*0.001F
+    val diamString = shared.getString("circumference", "0")
+    var diameter = 0F
+    if (diamString != null){
+        diameter = Integer.parseInt(diamString).toFloat()*0.001F // returns in meters
     }
 
-    return (circumference).toByteArray()
+    return (diameter).toByteArray()
 }
 
 fun getCurrentDate():String{
