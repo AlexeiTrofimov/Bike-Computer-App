@@ -10,9 +10,9 @@
     <string name="specs_header">Bike specifications</string>
 
     <!-- Bike specs -->
-    <string name="circumference_value">Circumference of your wheel (mm)</string>
+    <string name="diameter_value">Diameter of your wheel (mm)</string>
     <string name="placeholder_time">22:45</string>
-    <string name="placeholder_date">24/2/1999</string>
+    <string name="placeholder_date">24/12/1999</string>
     <string name="placeholder_distance">999.00 km</string>
     <string name="deleteBtnDesc">remove trip</string>
     <string name="placeholder_average_speed">22.5 km/h</string>

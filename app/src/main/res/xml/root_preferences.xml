@@ -3,8 +3,8 @@
     <PreferenceCategory app:title="@string/specs_header">
 
         <EditTextPreference
-            app:key="circumference"
-            app:title="@string/circumference_value"
+            app:key="diameter"
+            app:title="@string/diameter_value"
             app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>

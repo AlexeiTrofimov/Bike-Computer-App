@@ -31,7 +31,7 @@ fun ByteArray.toHexString(): String =
 
 fun getDiameter(context: Context): ByteArray{
     val shared = PreferenceManager.getDefaultSharedPreferences(context)
-    val diamString = shared.getString("circumference", "0")
+    val diamString = shared.getString("diameter", "0")
     var diameter = 0F
     if (diamString != null){
         diameter = Integer.parseInt(diamString).toFloat()*0.001F // returns in meters

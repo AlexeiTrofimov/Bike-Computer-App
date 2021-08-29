@@ -2,6 +2,7 @@ package com.example.bikecomputer
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.bluetooth.*
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
@@ -128,6 +129,7 @@ class MainActivity : AppCompatActivity() {
     }
     private var chronometerRunning = false
     private var isScanning = false
+
     private var isTracking = false
     set(value){
         val chronometer = findViewById<Chronometer>(R.id.cmTimer)
@@ -248,6 +250,17 @@ class MainActivity : AppCompatActivity() {
         return super.onPrepareOptionsMenu(menu)
     }
 
+    private fun showInfoDialog() {
+        val alertDialog = AlertDialog.Builder(this)
+        alertDialog.apply {
+            setTitle("Wheel diameter not set")
+            setMessage("The diameter must be set for the computer to work.")
+            setPositiveButton("To settings"){ _, _ ->
+                startActivity(Intent(applicationContext, SettingsActivity::class.java))
+            }
+        }.create().show()
+    }
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -276,8 +289,13 @@ class MainActivity : AppCompatActivity() {
         })
 
         findViewById<Button>(R.id.start_ride_btn).setOnClickListener {
-            if (isConnected) {
-                isTracking = !isTracking
+            if (getDiameter(applicationContext).toFloat() == 0F){
+                showInfoDialog()
+            }
+            else{
+                if (isConnected) {
+                    isTracking = !isTracking
+                }
             }
         }
     }
