@@ -169,8 +169,9 @@ class MainActivity : AppCompatActivity() {
 
                 speedometer.speedTo(0F, 4000)
                 val distance = tripComputer.getDistance(context)
+                val avgSpeed = "%.2f km/h".format(tripComputer.getAverageSpeed())
 
-                val trip = TripModel(-1, "%.2f".format(distance), getCurrentDate(), time)
+                val trip = TripModel(-1, "%.2f".format(distance), getCurrentDate(), avgSpeed ,time)
                 val dataBase = TripDataBase(context)
 
                 findViewById<TextView>(R.id.average_speed_view).text = "0.00 km/h"

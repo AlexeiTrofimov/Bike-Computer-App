@@ -14,13 +14,14 @@ class TripDataBase(context: Context?): SQLiteOpenHelper(context, DATABASE_NAME, 
         private const val TRIP_TABLE = "TRIP_TABLE"
         private const val COLUMN_ID = "ID"
         private const val COLUMN_DISTANCE = "DISTANCE"
+        private const val COLUMN_AVGSPEED = "AVGSPEED"
         private const val COLUMN_DATE = "DATE"
         private const val COLUMN_TIME = "TIME"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createTableStatement =
-            "CREATE TABLE $TRIP_TABLE ($COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT, $COLUMN_DISTANCE TEXT, $COLUMN_DATE TEXT, $COLUMN_TIME TEXT)"
+            "CREATE TABLE $TRIP_TABLE ($COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT, $COLUMN_DISTANCE TEXT, $COLUMN_AVGSPEED TEXT, $COLUMN_DATE TEXT, $COLUMN_TIME TEXT)"
 
         db?.execSQL(createTableStatement)
     }
@@ -35,6 +36,7 @@ class TripDataBase(context: Context?): SQLiteOpenHelper(context, DATABASE_NAME, 
 
         cv.put(COLUMN_DATE, tripModel.getDate())
         cv.put(COLUMN_DISTANCE, tripModel.getDistance())
+        cv.put(COLUMN_AVGSPEED, tripModel.getAvgSpeed())
         cv.put(COLUMN_TIME, tripModel.getTime())
 
         val success = db.insert(TRIP_TABLE, null, cv)
@@ -62,10 +64,11 @@ class TripDataBase(context: Context?): SQLiteOpenHelper(context, DATABASE_NAME, 
             do {
                 val tripID = cursor.getInt(0)
                 val tripDistance = cursor.getString(1)
-                val tripDate = cursor.getString(2)
-                val tripTime = cursor.getString(3)
+                val tripAvgSpeed = cursor.getString(2)
+                val tripDate = cursor.getString(3)
+                val tripTime = cursor.getString(4)
 
-                val newTrip = TripModel(tripID, tripDistance, tripDate, tripTime)
+                val newTrip = TripModel(tripID, tripDistance, tripDate,tripAvgSpeed, tripTime)
                 returnList.add(newTrip)
             } while(cursor.moveToNext())
         }

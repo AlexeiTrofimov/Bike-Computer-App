@@ -16,4 +16,6 @@
     <string name="placeholder_distance">999.00 km</string>
     <string name="deleteBtnDesc">remove trip</string>
     <string name="placeholder_average_speed">22.5 km/h</string>
+    <string name="average_speed_label">Average speed:</string>
+    <string name="distance_label">Distance:</string>
 </resources>
