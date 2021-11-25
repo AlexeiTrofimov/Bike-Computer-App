@@ -117,7 +117,7 @@
             android:layout_width="69dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            app:srcCompat="@drawable/ic_launcher_foreground" />
+            app:srcCompat="@android:drawable/ic_menu_info_details" />
 
         <TextView
             android:id="@+id/avg_speed_label"

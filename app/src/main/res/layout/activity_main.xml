@@ -81,10 +81,10 @@
 
     <TextView
         android:id="@+id/average_speed_view"
-        android:layout_width="174dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginBottom="104dp"
+        android:layout_width="195dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="112dp"
         android:text="@string/placeholder_average_speed"
         android:textSize="34sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -122,7 +122,7 @@
         android:layout_width="167dp"
         android:layout_height="40dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="104dp"
+        android:layout_marginBottom="116dp"
         android:text="13.45 km"
         android:textSize="34sp"
         app:layout_constraintBottom_toBottomOf="parent"
